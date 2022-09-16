@@ -10,6 +10,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
   const port = parseInt(configService.get<string>(SERVER_PORT),10 || 3000);
+  //const port = 3000;
   // app.useGlobalFilters(new AllExceptionFilter());
   // app.useGlobalInterceptors(new TimeOutInterceptor());
   // app.useGlobalPipes(new ValidationPipe({
