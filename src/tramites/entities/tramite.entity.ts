@@ -6,6 +6,9 @@ import { EstadoTramite } from '../../estados-tramite/entities/estados-tramite.en
 import { Ciudadano } from '../../ciudadanos/entities/ciudadano.entity';
 import { UsuariosTramite } from '../../usuarios-tramite/entities/usuarios-tramite.entity';
 import { Usuario } from 'src/usuario/entities/usuario.entity';
+import { Provincia } from "src/provincias/entities/provincia.entity";
+import { Departamento } from "src/departamentos/entities/departamento.entity";
+import { Municipio } from "src/municipios/entities/municipio.entity";
 
 
 @Entity('tramites')
@@ -37,6 +40,71 @@ export class Tramite {
     ciudadano : Ciudadano;
     //FIN CIUDADANO..................................
 
+    //PROVINCIA
+    @Column({
+        type: 'int',
+        nullable: false
+    })
+    provincia_id: number;
+
+    @ManyToOne(type => Provincia, {eager: true} )
+    @JoinColumn({
+        name: 'provincia_id',
+        referencedColumnName: 'id_provincia'
+    })
+    provincia: Provincia;
+    //FIN PROVINCIA
+
+    //DEPARTAMENTO
+    @Column({
+        type: 'int',
+        nullable: false
+    })
+    departamento_id: number;
+
+    @ManyToOne(type => Departamento, {eager: true})
+    @JoinColumn({
+        name: 'departamento_id',
+        referencedColumnName: 'id_departamento'
+    })
+    departamento: Departamento;
+    //FIN DEPARATMENTO
+
+    //MUNICIPIO
+    @Column({
+        type: 'int',
+        nullable: false
+    })
+    municipio_id: number
+
+    @ManyToOne(type => Municipio, {eager:true})
+    @JoinColumn({
+        name: 'municipio_id',
+        referencedColumnName: 'id_municipio'
+    })
+    municipio: Municipio;
+    //FIN MUNICIPIO
+
+    @Column({
+        type: 'varchar',
+        length: 100,
+        nullable: false
+    })
+    localidad_barrio: string;
+
+    @Column({
+        type: 'varchar',
+        length: 100,
+        nullable: false
+    })
+    calle_direccion: string;
+
+    @Column({
+        type: 'int',
+        nullable: false
+    })
+    numero_dom: number;
+
     @Column({
         type: 'date',
         nullable: false
@@ -65,7 +133,7 @@ export class Tramite {
 
     @Column({
         type: "boolean",
-        default: false
+        nullable: false
     })
     esta_asesorado: boolean;
     
@@ -86,49 +154,49 @@ export class Tramite {
 
     @Column({
         type: "boolean",
-        default: false
+        nullable: false
     })
     violencia_genero: boolean;
 
     @Column({
         type: "boolean",
-        default: false
+        nullable: false
     })
     violencia_partes: boolean;
 
     @Column({
         type: "boolean",
-        default: false
+        nullable: false
     })
     existe_denuncia: boolean;
 
     @Column({
         type: "boolean",
-        default: false
+        nullable: false
     })
     medida_cautelar: boolean;
 
     @Column({
         type: "boolean",
-        default: false
+        nullable: false
     })
     pdf_denuncia: boolean;
 
     @Column({
         type: "boolean",
-        default: false
+        nullable: false
     })
     pdf_cautelar: boolean;
 
     @Column({
         type: "boolean",
-        default: false
+        nullable: false
     })
     pdf_ingresos: boolean;
 
     @Column({
         type: "boolean",
-        default: false
+        nullable: false
     })
     pdf_negativa: boolean;
 

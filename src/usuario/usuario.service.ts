@@ -1,9 +1,12 @@
 import { BadRequestException, Injectable, NotFoundException, InternalServerErrorException } from '@nestjs/common';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import * as bcrypt from 'bcrypt';
+
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { Usuario } from './entities/usuario.entity';
-import { Repository } from 'typeorm';
-import { InjectRepository } from '@nestjs/typeorm';
+import { UpdateUsuarioPassDto } from './dto/update-usuario-pass.dto';
 
 @Injectable()
 export class UsuarioService {
@@ -11,23 +14,20 @@ export class UsuarioService {
     @InjectRepository(Usuario)
     private readonly usuariosRepository: Repository<Usuario>
   ){}
-  async create(data: CreateUsuarioDto): Promise<Usuario> {
-    
-    let existe = await this.usuariosRepository.findOneBy({dni: data.dni});
-    if(existe) throw new BadRequestException ("El dni del usuario que intenta crear ya existe.");
+  async create(data: CreateUsuarioDto): Promise<Usuario> {      
 
-    const nuevo = await this.usuariosRepository.create(data);
     try {
-
+      const {clave, ...usuarioData} = data;
+      const nuevo: Usuario = await this.usuariosRepository.create({
+        ...usuarioData,
+        clave: bcrypt.hashSync(clave,10)
+      });
       return await this.usuariosRepository.save(nuevo);
-    } catch (error) {
-      if(error.code=='ER_DUP_ENTRY'){
-        existe = null;
-        existe = await this.usuariosRepository.findOneBy({email: data.email});
-        if(existe) throw new InternalServerErrorException ("El email que se intentó crear ya existe. Intente guardar nuevamente");
-      }      
-      throw new InternalServerErrorException('Error al crear el nuevo usuario: ',error.message);  
-    }       
+
+    } catch (error) {      
+      this.handleDBErrors(error);
+
+    }
   }
 
   async findAll() {
@@ -90,21 +90,62 @@ export class UsuarioService {
   // }
   //FIN BUSCAR  XID..................................................................
 
-  async update(dnix: number, data: UpdateUsuarioDto) {
+  
+  //MODIFICAR CIUDADANO
+  async update(idx: number, data: UpdateUsuarioDto) {
+
     try{
-      const respuesta = await this.usuariosRepository.update({dni: dnix}, data);
-      if((respuesta).affected == 0) throw new NotFoundException("No se modificó el registro de usuario.");
+      const respuesta = await this.usuariosRepository.update(idx, data);
+      // if(( await respuesta).affected == 0){
+      //   await this.findXDni(dnix);
+      //   throw new InternalServerErrorException("No se modificó el registro.");
+      // } 
+      
       return respuesta;
+
     }
     catch(error){
-      throw new NotFoundException('Error al modificar el usuario: ',error.message);
+      this.handleDBErrors(error);
+
     }
   }
+  //FIN MODIFICAR CIUDADANO.......................................
+
+  //MODIFICAR PASSWORD
+  async updatePassword(idx: number, data: UpdateUsuarioPassDto) {
+    const clavex: string = bcrypt.hashSync(data.clave, 10);
+    data.clave = clavex;
+    try{
+      const respuesta = await this.usuariosRepository.update(idx, data);
+      // if(( await respuesta).affected == 0){
+      //   await this.findXDni(dnix);
+      //   throw new InternalServerErrorException("No se modificó el registro.");
+      // } 
+      
+      return respuesta;
+
+    }
+    catch(error){
+      this.handleDBErrors(error);
+
+    }
+  }
+  //FIN MODIFICAR PASSWORD.......................................
 
   async remove(dnix: number) {
     const respuesta = await this.usuariosRepository.findOneBy({dni: dnix});
     if(!respuesta) throw new NotFoundException("No existe el registro de usuario que intenta eliminar");
     return await this.usuariosRepository.remove(respuesta);
   }
+
+  //MANEJO DE ERRORES
+  private handleDBErrors(error: any): never {
+    if(error.code === "ER_DUP_ENTRY"){
+      throw new BadRequestException (error.sqlMessage);
+    }
+    console.log("error: ", error);
+    throw new InternalServerErrorException (error.message);
+  }
+  //FIN MANEJO DE ERRORES........................................
 
 }

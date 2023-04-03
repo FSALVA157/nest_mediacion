@@ -1,58 +1,32 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Req, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req, BadRequestException, ParseIntPipe, Query } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Request } from 'express';
+import { LoginCiudadanoDto } from './dto/login-ciudadano.dto';
+import { LoginUsuarioDto } from './dto/login-usuario.dto';
 
-
-interface IUsuario{
-  user: string;
-  password: string;
-}
 
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) {}  
 
-  @Post('login')
-  async login(
-    @Req()
-    req: Request
-    ) {
-      try {
-        // return {
-        //  "usuario" : req.query.user,
-        //  "clave": req.query.password
+  @Post('login-ciudadano')
+  async loginCiudadano(
+    @Body() loginCiudadanoDto: LoginCiudadanoDto    
 
-        // }
-        return this.authService.loginService(req.query.user.toString(), req.query.password.toString());
-        
-      } 
-      catch (error) {
-        throw new BadRequestException(error.message)
-      }
+  ) {         
+    return this.authService.loginCiudadano(loginCiudadanoDto);
+    
   }
 
-
-  @Post('login2')
-  async login2(
+  @Post('login-usuario')
+  async loginUsuario(
     @Body()
-    data: IUsuario
-    // @Req()
-    // req: Request
-    ) {
-      try {
-        // return {
-        //  "usuario" : req.query.user,
-        //  "clave": req.query.password
+    loginUsuarioDto: LoginUsuarioDto
 
-        // }
-        return this.authService.loginService(data.user.toString(), data.password.toString());
-        
-      } 
-      catch (error) {
-        throw new BadRequestException(error.message)
-      }
+  ) {
+    return this.authService.loginUsuario(loginUsuarioDto);
+    
   }
-
-
+  
 }

@@ -1,49 +1,20 @@
-import { IsDateString, IsInt, IsNotEmpty, Length, Matches, MaxLength } from "class-validator";
+import { IsDateString, IsInt, IsNotEmpty, IsString, Length, Matches, MaxLength } from "class-validator";
 
 export class CreateCiudadanoDto {
 
     @IsInt({message: "El dni debe ser un número entero."})
-    @IsNotEmpty({message: "Debe ingresar el dni."})
     dni: number;
 
     @Length(1,100,{message: "El apellido debe tener entre $constraint1 y $constraint2 caracteres."})
-    @IsNotEmpty({message: "Debe ingresar el apellido."})
     apellido: string;
 
     @Length(1,100,{message: "El nombre debe tener entre $constraint1 y $constraint2 caracteres."})
-    @IsNotEmpty({message: "Debe ingresar el nombre."})
     nombre: string;
 
-    @IsInt({message: "El id de sexo debe ser un número entero"})
-    @IsNotEmpty({message: "Debe ingresar el id de sexo."})
-    sexo_id: number;
-
-    @IsInt({message: "El id de provincia debe ser un número entero"})
-    @IsNotEmpty({message: "Debe ingresar el id de provincia."})
-    provincia_id: number;
-
-    @IsInt({message: "El id de departamento debe ser un número entero."})
-    @IsNotEmpty({message: "Debe ingresar el id de departamento."})
-    departamento_id: number;
-
-    @IsInt({message: "El id de municipio debe ser un número entero."})
-    @IsNotEmpty({message: "Debe ingresar el id de municipio."})
-    municipio_id: number
-
-    @Length(1,100,{message: "La localidad o barrio debe tener entre $constraint1 y $constraint2 caracteres."})
-    @IsNotEmpty({message: "Debe ingresar la localidad o barrio."})
-    localidad_barrio: string;
-
-    @Length(1,100,{message: "La calle/direccion debe tener entre $constraint1 y $constraint2 caracteres."})
-    @IsNotEmpty({message: "Debe ingresar la calle/direccion."})
-    calle_direccion: string;
-    
-    @IsInt({message: "El numero de domicilio debe ser un número entero."})
-    @IsNotEmpty({message: "Debe ingresar el numero de domicilio."})
-    numero_dom: number;
+    @IsInt({message: "El id-sexo debe ser un número entero"})
+    sexo_id: number;    
     
     @Length(1,100,{message: "El teléfono debe tener entre $constraint1 y $constraint2 caracteres."})
-    @IsNotEmpty({message: "Debe ingresar el teléfono."})
     telefono: string;
 
     @IsDateString({message: "El formato de la fecha de nacimiento ingresada no es válida."})
@@ -54,8 +25,11 @@ export class CreateCiudadanoDto {
     @IsNotEmpty({message: "Debe ingresar el correo."})
     email:string;
 
-    //@Matches(/(?=\w*\d)(?=\w*[A-Z])(?=\w*[a-z])\S{0,17}$/,{message:'El formato de la contraseña no es válido'})
+    @IsString()
     @Length(8,16,{message: "La clave debe tener entre $constraint1 y $constraint2 caracteres."})
-    @IsNotEmpty({message: "Debe ingresar la clave."})
+    @Matches(
+        /(?:(?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
+        message: 'La clave debe tener una Mayuscula, una minuscula  y un número'
+    })
     clave: string;
 }

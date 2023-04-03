@@ -66,21 +66,12 @@ export class Usuario {
 
     @Column({
         type: 'varchar',
-        length: 100,
+        length: 200,
         nullable: false,
         unique: false,
         select: false
     })
-    clave: string;
-
-    @BeforeInsert()
-    @BeforeUpdate()
-    async hashPassword(){
-        if(!this.clave){
-            return;
-        }
-        this.clave = await hash(this.clave,10);
-    }
+    clave: string;    
 
     @Column({
         type: "boolean",

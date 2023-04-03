@@ -3,6 +3,7 @@ import { Request } from 'express';
 import { CiudadanosService } from './ciudadanos.service';
 import { CreateCiudadanoDto } from './dto/create-ciudadano.dto';
 import { UpdateCiudadanoDto } from './dto/update-ciudadano.dto';
+import { UpdateCiudadanoPassDto } from './dto/update-ciudadano-pass.dto';
 
 @Controller('ciudadanos')
 export class CiudadanosController {
@@ -49,14 +50,23 @@ export class CiudadanosController {
   }
   //FIN PARA RUTA NO DEFINIDA...........
 
-  @Patch(':dni')
+  @Patch('cambiar-password/:id')
+  updatePassword(
+    @Param('id', ParseIntPipe) id: string, 
+    @Body() dataPasswordDto: UpdateCiudadanoPassDto
+  ) {
+    
+    return this.ciudadanosService.updatePassword(+id, dataPasswordDto);
+  }
+
+  @Patch(':id')
   update(
-    @Param('dni') dni: string, 
+    @Param('id', ParseIntPipe) id: string, 
     @Body() dataDto: UpdateCiudadanoDto
   ) {
     
-    return this.ciudadanosService.update(+dni, dataDto);
-  }
+    return this.ciudadanosService.update(+id, dataDto);
+  }  
 
   @Delete(':dni')
   remove(@Param('dni') dni: string) {

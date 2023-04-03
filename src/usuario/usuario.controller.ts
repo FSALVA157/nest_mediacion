@@ -1,8 +1,9 @@
-import { Controller, Get, Post, Body, Param, Delete, Req, NotFoundException, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Req, NotFoundException, Put, Patch, ParseIntPipe } from '@nestjs/common';
 import { Request } from 'express';
 import { UsuarioService } from './usuario.service';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
+import { UpdateUsuarioPassDto } from './dto/update-usuario-pass.dto';
 
 @Controller('usuarios')
 export class UsuarioController {
@@ -49,14 +50,24 @@ export class UsuarioController {
   // }
 
 
+  @Patch('cambiar-password/:id')
+  updatePassword(
+    @Param('id', ParseIntPipe) id: string, 
+    @Body() dataPasswordDto: UpdateUsuarioPassDto
+  ) {
+    
+    return this.usuarioService.updatePassword(+id, dataPasswordDto);
 
-  @Put(':dni')
-  update(@Param('dni') dni: string, @Body() dataDto: UpdateUsuarioDto) {
-    if(isNaN(Number(dni))) throw new NotFoundException("El dni debe ser un número.")
-    let dnix: number = parseFloat(dni);
-    if(!Number.isInteger(dnix)) throw new NotFoundException("El dni debe ser un número entero.")
-    return this.usuarioService.update(dnix, dataDto);
   }
+
+  @Patch(':id')
+  update(
+    @Param('id', ParseIntPipe) id: string, 
+    @Body() dataDto: UpdateUsuarioDto
+  ) {
+    
+    return this.usuarioService.update(+id, dataDto);
+  }  
 
   @Delete(':dni')
   remove(@Param('dni') dni: string) {
