@@ -47,6 +47,18 @@ export class TramitesController {
     if(!Number.isInteger(numero_tramitex)) throw new NotFoundException("El numero de tramite debe ser un número entero.")
     return this.tramitesService.findXNumeroTramite(numero_tramitex);
   }
+
+  //BUSCAR TRAMITES POR CIUDADANO
+  @Get('buscar-xciudadano')
+  async findByCiudadano( 
+    @Query('id_ciudadano', ParseIntPipe) id_ciudadano: string,   
+  ) {  
+
+    let id_ciudadanox: number = +id_ciudadano;
+
+    return this.tramitesService.findXCiudadano(id_ciudadanox);
+  } 
+  //FIN BUSCAR TRAMITES POR CIUDADANO.......................................
   
   //BUSCAR TRAMITES NUEVOS
   @Get('nuevos')

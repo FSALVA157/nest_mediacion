@@ -9,6 +9,7 @@ import { Usuario } from 'src/usuario/entities/usuario.entity';
 import { Provincia } from "src/provincias/entities/provincia.entity";
 import { Departamento } from "src/departamentos/entities/departamento.entity";
 import { Municipio } from "src/municipios/entities/municipio.entity";
+import { CentroMediacion } from '../../centros-mediacion/entities/centro-mediacion.entity';
 
 
 @Entity('tramites')
@@ -104,6 +105,22 @@ export class Tramite {
         nullable: false
     })
     numero_dom: number;
+
+     //CENTRO MEDIACION
+     @Column({
+        type: 'int',
+        nullable: false,
+        default: 1
+    })
+    centro_mediacion_id: number
+
+    @ManyToOne(type => CentroMediacion, {eager:true})
+    @JoinColumn({
+        name: 'centro_mediacion_id',
+        referencedColumnName: 'id_centro_mediacion'
+    })
+    centro_mediacion: CentroMediacion;
+    //FIN CENTRO MEDIACION
 
     @Column({
         type: 'date',

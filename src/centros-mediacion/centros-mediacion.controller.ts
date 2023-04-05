@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, NotFoundException, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, NotFoundException, ParseIntPipe, Query } from '@nestjs/common';
 import { CentrosMediacionService } from './centros-mediacion.service';
 import { CreateCentroMediacionDto } from './dto/create-centro-mediacion.dto';
 import { UpdateCentroMediacionDto } from './dto/update-centro-mediacion.dto';
@@ -12,6 +12,15 @@ export class CentrosMediacionController {
     return this.centrosMediacionService.create(data);
   }  
 
+
+  @Get('buscar-xdepartamento')
+  findByDepartamento(
+    @Query('id_departamento', ParseIntPipe) id_departamento: string
+  ) {
+
+    return this.centrosMediacionService.findByDepartamento(+id_departamento);
+  }
+
   @Get()
   findAll() {
     return this.centrosMediacionService.findAll();
@@ -19,7 +28,7 @@ export class CentrosMediacionController {
 
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: string) {
-
+    
     return this.centrosMediacionService.findOne(+id);
   }
 

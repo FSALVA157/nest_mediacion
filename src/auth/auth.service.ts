@@ -52,7 +52,7 @@ export class AuthService {
 
     const usuario = await this.usuarioRepository.createQueryBuilder('usuario')
     .where('usuario.dni = :dni', { dni: dni })
-    //.select(['usuario.dni', 'usuario.clave'])
+    .select(['usuario.dni', 'usuario.clave'])
     .getOne();
 
     if(!usuario)
@@ -60,8 +60,10 @@ export class AuthService {
 
     if( !bcrypt.compareSync(clave, usuario.clave) )
       throw new UnauthorizedException ("Los datos de login no son válidos (clave)");
-
-    return usuario;
+    
+    //return ciudadano;
+    return await this.usuarioRepository.findOneBy({dni: dni})
+    //return usuario;
     //TODO: RETORNAR jWT
   }
   //FIN LOGIN USUARIO.................................................................

@@ -36,7 +36,7 @@ export class Usuario {
     //SEXO
     @Column({
         type: 'int',
-        nullable: true
+        nullable: false
     })
     sexo_id: number;
 
@@ -63,6 +63,22 @@ export class Usuario {
         unique: false
     })
     email: string;
+
+    //ROL
+    @Column({
+        type: 'int',
+        nullable: true,
+        default: 2
+    })
+    rol_id: number;
+
+    // @ManyToOne(type => Sexo, {eager: true} )
+    // @JoinColumn({
+    //     name: 'sexo_id',
+    //     referencedColumnName: 'id_sexo'
+    // })
+    // sexo: Sexo;
+    //FIN ROL
 
     @Column({
         type: 'varchar',

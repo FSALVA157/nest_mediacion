@@ -31,7 +31,7 @@ export class UsuariosTramiteController {
 
   //BUSCAR TRAMITES ASIGNADOS POR ID-USUARIO
   @Get('buscar-xusuario')  
-  async findTramiteXNumero(
+  async findTramiteXUsuario(
     @Query('id_usuario', ParseIntPipe) id_usuario: string, 
   ) {
 
@@ -44,6 +44,18 @@ export class UsuariosTramiteController {
   //FIN BUSCAR TRAMITES ASIGNADOS POR ID-USUARIO....................................................
 
   //BUSCAR TRAMITES ASIGNADOS POR ID-USUARIO
+  @Get('buscar-xnumtramite-activo')  
+  async findTramiteXNumero(
+    @Query('numero_tramite', ParseIntPipe) numero_tramite: string, 
+  ) {
+
+    let numero_tramitex: number = +numero_tramite;
+
+    return this.usuariosTramiteService.findByNumTramiteActivo(numero_tramitex);
+  }
+  //FIN BUSCAR TRAMITES ASIGNADOS POR ID-USUARIO....................................................
+
+  //BUSCAR TRAMITES ASIGNADOS POR CIUDADANO
   @Get('buscar-xciudadano')  
   async findTramiteXCiudadano(
     @Query('id_ciudadano', ParseIntPipe) id_ciudadano: string, 
@@ -55,7 +67,7 @@ export class UsuariosTramiteController {
 
     return this.usuariosTramiteService.findTramitesXCiudadano(id_ciudadanox);
   }
-  //FIN BUSCAR TRAMITES ASIGNADOS POR ID-USUARIO....................................................
+  //FIN BUSCAR TRAMITES ASIGNADOS POR CIUDADANO....................................................
 
   //BUSCAR TRAMITES ASIGNADOS   ACTIVOS
   @Get('buscar-activos')  

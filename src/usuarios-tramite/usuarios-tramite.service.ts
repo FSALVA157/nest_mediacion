@@ -17,14 +17,14 @@ export class UsuariosTramiteService {
     const existe = await this.usuariosTramiteRepository.findOne(
       {
         where:{
-          usuario_id: data.usuario_id,
+          //usuario_id: data.usuario_id,
           tramite_numero: data.tramite_numero,
           funcion_tramite_id: data.funcion_tramite_id,
           activo: true
         }
       }
     );
-    if(existe) throw new BadRequestException ("Este usuario ya se encuentra asignado a este tramite con esta funcion.");
+    if(existe) throw new BadRequestException ("Este tramite tiene un usuario asignado con esta funcion.");
     
     const nuevo = await this.usuariosTramiteRepository.create(data);
     try {
@@ -91,6 +91,25 @@ export class UsuariosTramiteService {
   }
   //FIN BUSCAR  TRAMITES ASIGNADOS ACTIVOS..................................................................
 
+  //BUSCAR  XID
+  async findByNumTramiteActivo(num_tramite: number) {    
+    //const respuesta = await this.usuariosCentroRepository.findOneBy({id_usuario_centro: id});
+    const respuesta = await this.usuariosTramiteRepository.findOne(
+      {
+        //relations: ['tramite'],
+        where: {          
+          tramite_numero: num_tramite,
+          activo: true
+        }      
+          
+      }
+    );
+    
+    if (!respuesta) throw new NotFoundException("No se encontró el registro con este numero de tramite.");
+    return respuesta;
+  }
+  //FIN BUSCAR  XID..................................................................
+  
   async findAll() {
     return await this.usuariosTramiteRepository.findAndCount(
       {

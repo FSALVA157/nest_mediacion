@@ -68,6 +68,23 @@ export class TramitesService {
   }
   //FIN TODOS LOS TRAMITES..............................
 
+  //BUSCAR TRAMITES X CIUDADANO X ESTADO --- 1 NUEVO - 2 CON MEDIADOR - 3 FINALIZADO 
+  async findXCiudadano(id_ciudadano: number) {
+    const tramites = await this.tramiteRepository.findAndCount(
+      {        
+        where: {
+          ciudadano_id: id_ciudadano
+        },
+        order:{
+          numero_tramite: "DESC"
+        }
+      }
+    );   
+
+    return tramites;
+  }
+  //FIN BUSCAR TRAMITES NUEVOS..........................................
+
   //BUSCAR TRAMITES X ESTADO --- 1 NUEVO - 2 CON MEDIADOR - 3 FINALIZADO 
   async findxestado(id_estado: number) {
     const tramites = await this.tramiteRepository.findAndCount(

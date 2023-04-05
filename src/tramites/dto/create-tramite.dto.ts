@@ -27,6 +27,9 @@ export class CreateTramiteDto {
     @IsInt({message: "El numero de domicilio debe ser un número entero."})
     numero_dom: number;
 
+    @IsInt({message: "El id-centro-mediacion debe ser un número entero."})
+    centro_mediacion_id: number
+
     @IsBoolean({message: "El campo esta asesorado debe ser verdadero o falso"})
     esta_asesorado: boolean;    
     

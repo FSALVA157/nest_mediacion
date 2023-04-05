@@ -30,6 +30,20 @@ export class CentrosMediacionService {
     }         
   }
 
+  //BUSCAR  XDEPARTAMENTO
+  async findByDepartamento(id_departamento: number) {
+
+    const respuesta = await this.centrosMediacionRepository.findAndCount(
+      {
+        where: {departamento_id: id_departamento},
+        order: {centro_mediacion: "ASC"}
+      }
+    );
+    if (!respuesta) throw new NotFoundException("El registro solicitado no existe.");
+    return respuesta;
+  }
+  //FIN BUSCAR  XDEPARTAMENTO..................................................................
+
   async findAll() {
     return await this.centrosMediacionRepository.findAndCount(
       {
