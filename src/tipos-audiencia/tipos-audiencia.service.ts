@@ -14,17 +14,13 @@ export class TiposAudienciaService {
 
   async create(data: CreateTipoAudienciaDto): Promise<TipoAudiencia> {
 
-    const nuevo = await this.tipoAudienciaRepository.create(data);
     try {
-
+      
+      const nuevo = await this.tipoAudienciaRepository.create(data);
       return await this.tipoAudienciaRepository.save(nuevo);
     }catch (error) {
-      if(error.code == 'ER_DUP_ENTRY'){
-        let existe = await this.tipoAudienciaRepository.findOneBy({tipo_audiencia: data.tipo_audiencia});
-        if(existe) throw new InternalServerErrorException ("El tipo-audiencia que intenta crear ya existe.");      
-      } 
 
-      throw new InternalServerErrorException('Error al crear el tipo-audiencia: ',error.message);  
+      this.handleDBErrors(error);   
     }      
   }
 
@@ -42,7 +38,7 @@ export class TiposAudienciaService {
   async findOne(id: number) {
 
     const respuesta = await this.tipoAudienciaRepository.findOneBy({id_tipo_audiencia: id});
-    if (!respuesta) throw new NotFoundException("No se encontró el registro de tipo-audiencia solicitado.");
+    if (!respuesta) throw new NotFoundException("El elemento solicitado no existe");
     return respuesta;
   }
   //FIN BUSCAR  XID..................................................................
@@ -53,15 +49,12 @@ export class TiposAudienciaService {
       const respuesta = await this.tipoAudienciaRepository.update(id, data);
       if((await respuesta).affected == 0){
         await this.findOne(id);
-        throw new InternalServerErrorException("No se modificó el registro.");
       } 
       return respuesta;
     }
     catch(error){
-      if(error.code=='ER_DUP_ENTRY'){
-        throw new InternalServerErrorException('El tipo-audiencia  ingresada ya existe.');
-      }      
-      throw new InternalServerErrorException('Error al modificar el tipo-audiencia : ',error.message);
+      
+      this.handleDBErrors(error); 
     }
   }
 
@@ -70,4 +63,18 @@ export class TiposAudienciaService {
     if(!respuesta) throw new NotFoundException("No existe el registro de tipo-audiencia que intenta eliminar");
     return await this.tipoAudienciaRepository.remove(respuesta);
   }
+
+
+
+  //MANEJO DE ERRORES
+  private handleDBErrors(error: any): never {
+    if(error.code === "ER_DUP_ENTRY"){
+      throw new BadRequestException (error.sqlMessage);
+    }
+    
+    if(error.status == 404) throw new NotFoundException(error.response);
+  
+    throw new InternalServerErrorException (error.message);
+    }
+    //FIN MANEJO DE ERRORES........................................
 }

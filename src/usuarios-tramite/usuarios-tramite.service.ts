@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { CreateUsuariosTramiteDto } from './dto/create-usuarios-tramite.dto';
 import { UpdateUsuariosTramiteDto } from './dto/update-usuarios-tramite.dto';
 import { Usuario } from '../usuario/entities/usuario.entity';
@@ -26,12 +26,12 @@ export class UsuariosTramiteService {
     );
     if(existe) throw new BadRequestException ("Este tramite tiene un usuario asignado con esta funcion.");
     
-    const nuevo = await this.usuariosTramiteRepository.create(data);
     try {
+      const nuevo = await this.usuariosTramiteRepository.create(data);
       return await this.usuariosTramiteRepository.save(nuevo);
     } catch (error) {
           
-      throw new NotFoundException('Error al asignar el usuario a un trmite: ',error.message);  
+      this.handleDBErrors(error);
     }       
   }
 
@@ -137,7 +137,7 @@ export class UsuariosTramiteService {
           
       }
     );
-    if (!respuesta) throw new NotFoundException("No se encontró el registro de usuario-tramite.");
+    if (!respuesta) throw new NotFoundException("El elemento solicitado no existe");
     return respuesta;
   }
   //FIN BUSCAR  XID..................................................................
@@ -145,11 +145,14 @@ export class UsuariosTramiteService {
   async update(id: number, data: UpdateUsuariosTramiteDto) {
     try{
       const respuesta = await this.usuariosTramiteRepository.update({id_usuario_tramite: id}, data);
-      if((respuesta).affected == 0) throw new NotFoundException("No se modificó el registro de usuario-tramite.");
+      if((respuesta).affected == 0) {
+        await this.findOne(id);
+      }
+
       return respuesta;
     }
     catch(error){
-      throw new NotFoundException('Error al modificar el usuario-tramite: ',error.message);
+      this.handleDBErrors(error);
     }
   }
 
@@ -158,4 +161,18 @@ export class UsuariosTramiteService {
     if(!respuesta) throw new NotFoundException("No existe el registro de usuario-tramite que intenta eliminar");
     return await this.usuariosTramiteRepository.remove(respuesta);
   }
+
+
+
+  //MANEJO DE ERRORES
+  private handleDBErrors(error: any): never {
+    if(error.code === "ER_DUP_ENTRY"){
+      throw new BadRequestException (error.sqlMessage);
+    }
+    
+    if(error.status == 404) throw new NotFoundException(error.response);
+  
+    throw new InternalServerErrorException (error.message);
+    }
+    //FIN MANEJO DE ERRORES........................................
 }

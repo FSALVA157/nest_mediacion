@@ -19,11 +19,11 @@ export class CentrosMediacionService {
     } catch (error) {
       if(error.code=='ER_DUP_ENTRY'){
         let existe = await this.centrosMediacionRepository.findOneBy({email: data.email});
-        if(existe) throw new InternalServerErrorException ("El email que se intentó crear ya existe.");
+        if(existe) throw new BadRequestException ("El email que se intentó crear ya existe.");
       
         existe = null;
         existe = await this.centrosMediacionRepository.findOneBy({centro_mediacion: data.centro_mediacion});
-        if(existe) throw new InternalServerErrorException ("El centro de mediación que intentó crear ya existe.");
+        if(existe) throw new BadRequestException ("El centro de mediación que intentó crear ya existe.");
       } 
 
       throw new InternalServerErrorException('Error al crear el centro de mediación: ',error.message);  
@@ -40,6 +40,7 @@ export class CentrosMediacionService {
       }
     );
     if (!respuesta) throw new NotFoundException("El registro solicitado no existe.");
+
     return respuesta;
   }
   //FIN BUSCAR  XDEPARTAMENTO..................................................................
@@ -58,31 +59,34 @@ export class CentrosMediacionService {
   async findOne(id: number) {
 
     const respuesta = await this.centrosMediacionRepository.findOneBy({id_centro_mediacion: id});
-    if (!respuesta) throw new NotFoundException("El registro solicitado no existe.");
+    if (!respuesta) throw new NotFoundException("El elemento solicitado no existe.");
+
     return respuesta;
   }
   //FIN BUSCAR  XID..................................................................
 
-  async update(id: number, data: UpdateCentroMediacionDto) {
-    
+  async update(id: number, data: UpdateCentroMediacionDto) {    
     try{
       const respuesta = await this.centrosMediacionRepository.update({id_centro_mediacion: id}, data);
       if((await respuesta).affected == 0){
-        await this.findOne(id);
-        throw new InternalServerErrorException("No se modificó el registro.");
+        await this.findOne(id); //si no lo encuentra salta como error en catch
+
       } 
       return respuesta;
     }
     catch(error){
       if(error.code=='ER_DUP_ENTRY'){
         let existe = await this.centrosMediacionRepository.findOneBy({email: data.email});
-        if(existe) throw new InternalServerErrorException ("El email existe.");
+        if(existe) throw new BadRequestException ("El email existe.");
       
         existe = null;
         existe = await this.centrosMediacionRepository.findOneBy({centro_mediacion: data.centro_mediacion});
-        if(existe) throw new InternalServerErrorException ("El centro de mediación ya existe.");
+        if(existe) throw new BadRequestException ("El centro de mediación ya existe.");
       }   
-      throw new InternalServerErrorException('Error al modificar el centro de mediación: ' + error.message);
+
+      if(error.status == 404) throw new NotFoundException(error.message);
+      
+      throw new InternalServerErrorException('Error al modificar: ' + error.message);
     }    
   }
 

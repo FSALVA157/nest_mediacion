@@ -28,8 +28,8 @@ export class CreateCiudadanoDto {
     @IsString()
     @Length(8,16,{message: "La clave debe tener entre $constraint1 y $constraint2 caracteres."})
     @Matches(
-        /(?:(?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
-        message: 'La clave debe tener una Mayuscula, una minuscula  y un número'
+        /[^'"`=+\s]+$/, {
+        message: 'Estos caracteres no están permitidos: comillas simples (\'), comillas dobles ("), comillas invertidas (`), signos de igualdad (=), signos de más (+) y los espacios.'
     })
     clave: string;
 }

@@ -13,17 +13,13 @@ export class DepartamentosService {
   ){}
 
   async create(data: CreateDepartamentoDto): Promise<Departamento> {
-
-    const nuevo = await this.departamentoRepository.create(data);
+    
     try {
+      const nuevo = await this.departamentoRepository.create(data);
       return await this.departamentoRepository.save(nuevo);
     } catch (error) {
-      if(error.code=='ER_DUP_ENTRY'){
-        let existe = await this.departamentoRepository.findOneBy({departamento: data.departamento});
-        if(existe) throw new InternalServerErrorException ("El departamento que intenta crear ya existe.");      
-      } 
 
-      throw new InternalServerErrorException('Error al crear el departamento: ',error.message);  
+      this.handleDBErrors(error); 
     }
     
   }
@@ -42,7 +38,7 @@ export class DepartamentosService {
   async findOne(id: number) {
 
     const respuesta = await this.departamentoRepository.findOneBy({id_departamento: id});
-    if (!respuesta) throw new NotFoundException("No se encontró el registro de departamento solicitado.");
+    if (!respuesta) throw new NotFoundException("El elemento solicitado no existe");
     return respuesta;
 
   }
@@ -53,15 +49,12 @@ export class DepartamentosService {
       const respuesta = await this.departamentoRepository.update(id, data);
       if((await respuesta).affected == 0){
         await this.findOne(id);
-        throw new InternalServerErrorException("No se modificó el registro.");
       } 
+
       return respuesta;
     }
     catch(error){
-      if(error.code=='ER_DUP_ENTRY'){
-        throw new InternalServerErrorException('El departamento ingresado ya existe.');
-      }      
-      throw new InternalServerErrorException('Error al modificar el departamento: ',error.message);
+      this.handleDBErrors(error);
     }
   }
 
@@ -70,5 +63,18 @@ export class DepartamentosService {
     if(!respuesta) throw new NotFoundException("No existe el registro de departamento que intenta eliminar");
     return await this.departamentoRepository.remove(respuesta);
   }
+
+
+  //MANEJO DE ERRORES
+  private handleDBErrors(error: any): never {
+    if(error.code === "ER_DUP_ENTRY"){
+      throw new BadRequestException (error.sqlMessage);
+    }
+    
+    if(error.status == 404) throw new NotFoundException(error.response);
+
+    throw new InternalServerErrorException (error.message);
+  }
+  //FIN MANEJO DE ERRORES........................................
 }
 

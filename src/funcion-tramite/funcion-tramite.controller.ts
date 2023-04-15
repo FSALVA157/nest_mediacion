@@ -32,7 +32,7 @@ export class FuncionTramiteController {
 
   @Patch(':id')
   update(
-    @Param('id') id: string, 
+    @Param('id', ParseIntPipe) id: string, 
     @Body() dataDto: UpdateFuncionTramiteDto
   ) {
     

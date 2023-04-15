@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Ciudadano } from 'src/ciudadanos/entities/ciudadano.entity';
 import databaseConfig from 'src/config/database.config';
@@ -51,7 +51,8 @@ export class TramitesService {
         const existe = await this.tramiteRepository.findOneBy({numero_tramite: data.numero_tramite});
         if(existe) throw new BadRequestException ("Error al generar el número de tramite. Intente guardar nuevamente");
       }      
-      throw new NotFoundException('Error al crear el nuevo tramite: ',error.message);  
+      
+      this.handleDBErrors(error); 
     }    
   }
   //FIN NUEVO TRAMITE..................................................................
@@ -207,4 +208,22 @@ export class TramitesService {
     if(!respuesta) throw new NotFoundException("No existe el registro de tramite que intenta eliminar");
     return await this.tramiteRepository.remove(respuesta);
   }
+
+
+
+  //MANEJO DE ERRORES
+  private handleDBErrors(error: any): never {
+    if(error.code === "ER_DUP_ENTRY"){
+      throw new BadRequestException (error.sqlMessage);
+    }
+
+    if(error.code === "ER_NO_REFERENCED_ROW_2"){
+      throw new BadRequestException (error.sqlMessage);
+    } 
+    
+    if(error.status == 404) throw new NotFoundException(error.response);
+  
+    throw new InternalServerErrorException (error.message);
+    }
+    //FIN MANEJO DE ERRORES........................................
 }

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, NotFoundException, Put, Req, Query, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe } from '@nestjs/common';
 import { Request } from 'express';
 import { UsuariosTramiteService } from './usuarios-tramite.service';
 import { CreateUsuariosTramiteDto } from './dto/create-usuarios-tramite.dto';
@@ -85,27 +85,22 @@ export class UsuariosTramiteController {
   //FIN TODAS LAS ASIGNACIONES
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id', ParseIntPipe) id: string) {
     
-    if(isNaN(Number(id))) throw new NotFoundException("El id del usuario-tramite debe ser un número.")
-    let idx: number = parseFloat(id);
-    if(!Number.isInteger(idx)) throw new NotFoundException("El id del usuario-tramite debe ser un número entero.")
-    return this.usuariosTramiteService.findOne(idx);
+    return this.usuariosTramiteService.findOne(+id);
   }
 
-  @Put(':id')
-  update(@Param('id') id: string, @Body() dataDto: UpdateUsuariosTramiteDto) {
-    if(isNaN(Number(id))) throw new NotFoundException("El id usuario-tramite debe ser un número.")
-    let idx: number = parseFloat(id);
-    if(!Number.isInteger(idx)) throw new NotFoundException("El id usuario-tramite debe ser un número entero.")
-    return this.usuariosTramiteService.update(idx, dataDto);
+  @Patch(':id')
+  update(
+    @Param('id', ParseIntPipe) id: string, 
+    @Body() dataDto: UpdateUsuariosTramiteDto) {
+    
+      return this.usuariosTramiteService.update(+id, dataDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    if(isNaN(Number(id))) throw new NotFoundException("El id de usuariosTramiteService debe ser un número.")
-    let idx: number = parseFloat(id);
-    if(!Number.isInteger(idx)) throw new NotFoundException("El id de usuariosTramiteService debe ser un número entero.")
-    return this.usuariosTramiteService.remove(idx);
+  remove(@Param('id', ParseIntPipe) id: string) {
+    
+    return this.usuariosTramiteService.remove(+id);
   }
 }

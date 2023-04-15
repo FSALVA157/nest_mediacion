@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { CreateUsuarioCentroDto } from './dto/create-usuario-centro.dto';
 import { UpdateUsuarioCentroDto } from './dto/update-usuario-centro.dto';
 import { Repository } from 'typeorm';
@@ -25,12 +25,13 @@ export class UsuariosCentrosService {
     );
     
     if(existe) throw new BadRequestException ("Este usuario ya se encuentra asignado a este centro de mediación");
-    const nuevo = await this.usuariosCentroRepository.create(data);
+    
     try {
+      const nuevo = await this.usuariosCentroRepository.create(data);
       return await this.usuariosCentroRepository.save(nuevo);
     } catch (error) {
           
-      throw new NotFoundException('Error al asignar el usuario a un centro de mediación: ',error.message);  
+      this.handleDBErrors(error);   
     }       
   }
   //FIN NUEVO USUARIO-CENRO........................................
@@ -63,7 +64,7 @@ export class UsuariosCentrosService {
           
       }
     );
-    if (!respuesta) throw new NotFoundException("No se encontró el registro de usuario-centro.");
+    if (!respuesta) throw new NotFoundException("No se encontró el elemento solicitado");
     return respuesta;
   }
   //FIN BUSCAR  XID..................................................................
@@ -76,8 +77,7 @@ export class UsuariosCentrosService {
         //relations: ['usuario','centro_mediacion'],
         where: {
           centro_mediacion_id: id_centro
-        }      
-          
+        }                
       }
     );
     return respuesta;
@@ -105,12 +105,15 @@ export class UsuariosCentrosService {
   async update(id: number, data: UpdateUsuarioCentroDto) {
     try{
       const respuesta = await this.usuariosCentroRepository.update({id_usuario_centro: id}, data);
-      if((respuesta).affected == 0) throw new NotFoundException("No se modificó el registro de usuario-centro.");
+      if((respuesta).affected == 0) {
+        await this.findOne(id);
+      }
+      
       return respuesta;
     }
     catch(error){
       
-      throw new NotFoundException('Error al modificar el usuario-centro: ',error.message);
+      this.handleDBErrors(error);
     }
   }
   //FIN MODIFICAR UNO....................................................
@@ -121,4 +124,18 @@ export class UsuariosCentrosService {
     if(!respuesta) throw new NotFoundException("No existe el registro de usuario-centro que intenta eliminar");
     return await this.usuariosCentroRepository.remove(respuesta);
   }
+
+
+
+  //MANEJO DE ERRORES
+  private handleDBErrors(error: any): never {
+    if(error.code === "ER_DUP_ENTRY"){
+      throw new BadRequestException (error.sqlMessage);
+    }
+    
+    if(error.status == 404) throw new NotFoundException(error.response);
+  
+    throw new InternalServerErrorException (error.message);
+    }
+    //FIN MANEJO DE ERRORES........................................
 }

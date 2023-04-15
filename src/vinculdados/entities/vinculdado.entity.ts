@@ -4,6 +4,7 @@ import { Provincia } from '../../provincias/entities/provincia.entity';
 import { Departamento } from '../../departamentos/entities/departamento.entity';
 import { Municipio } from '../../municipios/entities/municipio.entity';
 import { Categoria } from '../../categorias/entities/categoria.entity';
+import { Tramite } from "src/tramites/entities/tramite.entity";
 
 @Entity('vinculados')
 export class Vinculdado {
@@ -15,8 +16,14 @@ export class Vinculdado {
         type: 'int',
         nullable: false
     })
-    tramite_id: number;
+    tramite_numero: number;
 
+    @ManyToOne(type => Tramite, {eager: true})
+    @JoinColumn({
+        name: 'tramite_numero',
+        referencedColumnName: 'numero_tramite'
+    })
+    tramite: Tramite;
     //FIN TRAMITE
 
     @Column({
@@ -36,7 +43,8 @@ export class Vinculdado {
      
     @Column({
         type: 'int',
-        nullable: true
+        nullable: true,
+        default: 0
     })
     dni: number;
 
@@ -58,7 +66,8 @@ export class Vinculdado {
     //PROVINCIA
     @Column({
         type: 'int',
-        nullable: false
+        nullable: false,
+        default: 1
     })
     provincia_id: number;
 
@@ -73,7 +82,8 @@ export class Vinculdado {
     //DEPARTAMENTO
     @Column({
         type: 'int',
-        nullable: false
+        nullable: false,
+        default: 1
     })
     departamento_id: number;
 
@@ -88,7 +98,8 @@ export class Vinculdado {
     //MUNICIPIO
     @Column({
         type: 'int',
-        nullable: false
+        nullable: false,
+        default: 1
     })
     municipio_id: number
 
@@ -101,9 +112,16 @@ export class Vinculdado {
     //FIN MUNICIPIO
 
     @Column({
+        type: 'int',
+        nullable: false,
+        default: 0
+    })
+    codigo_postal: number;
+
+    @Column({
         type: 'varchar',
         length: 100,
-        nullable: false
+        nullable: true
     })
     localidad_barrio: string;
 
@@ -112,25 +130,12 @@ export class Vinculdado {
         length: 100,
         nullable: true
     })
-    calle: string;
-
-    @Column({
-        type: 'varchar',
-        length: 50,
-        nullable: true
-    })
-    departamento_dom: string
-
-    @Column({
-        type: 'varchar',
-        length: 10,
-        nullable: true
-    })
-    piso: string;
+    calle_direccion: string;
 
     @Column({
         type: 'int',
-        nullable: false
+        nullable: false,
+        default: 0
     })
     numero_dom: number;
 
@@ -161,7 +166,7 @@ export class Vinculdado {
         type: 'int',
         nullable: false
     })
-    categoria_id: number
+    categoria_id: number;
 
     @ManyToOne(type => Categoria, {eager:true})
     @JoinColumn({
@@ -175,5 +180,5 @@ export class Vinculdado {
         type: "boolean",
         default: true
     })
-    vigente: boolean;
+    activo: boolean;
 }

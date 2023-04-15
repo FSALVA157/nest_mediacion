@@ -1,29 +1,58 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Req, NotFoundException, Put } from '@nestjs/common';
-import { Request } from 'express'
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe } from '@nestjs/common';
+
 import { VinculdadosService } from './vinculdados.service';
 import { CreateVinculdadoDto } from './dto/create-vinculdado.dto';
 import { UpdateVinculdadoDto } from './dto/update-vinculdado.dto';
+import { CreateConvocadoSaltaDto } from './dto/create-convocado-salta.dto';
+import { CreateConvocadoNoSaltaDto } from './dto/create-convocado-nosalta.dto';
+import { Vinculdado } from './entities/vinculdado.entity';
 
-@Controller('vinculdados')
+@Controller('vinculados')
 export class VinculdadosController {
-  constructor(private readonly vinculdadosService: VinculdadosService) {}
 
-  @Post()
-  create(@Body() data: CreateVinculdadoDto) {
+  constructor(
+    private readonly vinculdadosService: VinculdadosService
+   ) {}
+
+  @Post('nuevo-vinculado')
+  createVinculado(@Body() data: CreateVinculdadoDto) {
+    const {...vinculadoData}= data;
+    let vinculado: Partial<Vinculdado> = vinculadoData;
+        
+    return this.vinculdadosService.create(vinculado);
+  }
+
+  @Post('nuevo-convocado-salta')
+  createConvocadoSalta(@Body() data: CreateConvocadoSaltaDto) {
+    let vinculado: Partial<Vinculdado> = data;
+    vinculado.provincia_id = 18;
+    vinculado.categoria_id = 2;
+
+    return this.vinculdadosService.create(vinculado);
+  }
+
+  @Post('nuevo-convocado-nosalta')
+  createConvocadoNoSalta(@Body() data: CreateConvocadoNoSaltaDto) {
+    let vinculado: Partial<Vinculdado> = data;
+    vinculado.categoria_id = 2;
+
     return this.vinculdadosService.create(data);
   }
 
   @Get('buscar-xdni')  
-  async findCiudadanoXDni(
-    @Req()
-    req: Request
-  ) {
+  async findVinculadoXDni(
+    @Query('dni', ParseIntPipe) dni: string
+  ) {    
     
-    if(!req.query.dni) throw new NotFoundException("El dni no fue ingresado.")
-    if(isNaN(Number(req.query.dni.toString()))) throw new NotFoundException("El dni debe ser un número.")
-    let dnix: number = parseFloat(req.query.dni.toString());
-    if(!Number.isInteger(dnix)) throw new NotFoundException("El dni debe ser un número entero.")
-    return this.vinculdadosService.findXDni(dnix);
+    return this.vinculdadosService.findXDni(+dni);
+  }
+
+  @Get('buscar-xtramite')  
+  async findVinculadoXTramite(
+    @Query('num_tramite', ParseIntPipe) num_tramite: string
+  ) {    
+    
+    return this.vinculdadosService.findXTramite(+num_tramite);
   }
 
   @Get()
@@ -32,29 +61,23 @@ export class VinculdadosController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    
-    if(isNaN(Number(id))) throw new NotFoundException("El id del vinculado debe ser un número.")
-    let idx: number = parseFloat(id);
-    if(!Number.isInteger(idx)) throw new NotFoundException("El id del vinculado debe ser un número entero.")
-    return this.vinculdadosService.findOne(idx);
+  findOne(@Param('id', ParseIntPipe) id: string) {
+        
+    return this.vinculdadosService.findOne(+id);
   }
 
-
-
-  @Put(':id')
-  update(@Param('id') id: string, @Body() dataDto: UpdateVinculdadoDto) {
-    if(isNaN(Number(id))) throw new NotFoundException("El id debe ser un número.")
-    let idx: number = parseFloat(id);
-    if(!Number.isInteger(idx)) throw new NotFoundException("El id debe ser un número entero.")
-    return this.vinculdadosService.update(idx, dataDto);
+  @Patch(':id')
+  update(
+    @Param('id', ParseIntPipe) id: string, 
+    @Body() dataDto: UpdateVinculdadoDto
+  ) {
+    
+    return this.vinculdadosService.update(+id, dataDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    if(isNaN(Number(id))) throw new NotFoundException("El id debe ser un número.")
-    let idx: number = parseFloat(id);
-    if(!Number.isInteger(idx)) throw new NotFoundException("El id debe ser un número entero.")
-    return this.vinculdadosService.remove(idx);
+  remove(@Param('id', ParseIntPipe) id: string) {
+
+    return this.vinculdadosService.remove(+id);
   }
 }

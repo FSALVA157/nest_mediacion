@@ -14,16 +14,12 @@ export class FuncionTramiteService {
 
   async create(data: CreateFuncionTramiteDto): Promise<FuncionTramite> {
 
-    const nuevo = await this.funcionTramiteRepository.create(data);
     try {
+      const nuevo = await this.funcionTramiteRepository.create(data);
       return await this.funcionTramiteRepository.save(nuevo);
     } catch (error) {
-      if(error.code=='ER_DUP_ENTRY'){
-        let existe = await this.funcionTramiteRepository.findOneBy({funcion_tramite: data.funcion_tramite});
-        if(existe) throw new InternalServerErrorException ("La funcion-tramite  que intenta crear ya existe.");      
-      } 
 
-      throw new InternalServerErrorException('Error al crear la funcion-tramite: ',error.message);  
+      this.handleDBErrors(error); 
     }  
   }
 
@@ -52,15 +48,12 @@ export class FuncionTramiteService {
       const respuesta = await this.funcionTramiteRepository.update(id, data);
       if((await respuesta).affected == 0){
         await this.findOne(id);
-        throw new InternalServerErrorException("No se modificó el registro.");
       } 
       return respuesta;
     }
     catch(error){
-      if(error.code=='ER_DUP_ENTRY'){
-        throw new InternalServerErrorException('La funcion-tramite ingresada ya existe.');
-      }      
-      throw new InternalServerErrorException('Error al modificar la funcion-tramite: ',error.message);
+      
+      this.handleDBErrors(error); 
     }    
   }
 
@@ -69,4 +62,17 @@ export class FuncionTramiteService {
     if(!respuesta) throw new NotFoundException("No existe el registro de funcion-tramite que intenta eliminar");
     return await this.funcionTramiteRepository.remove(respuesta);
   }
+
+
+  //MANEJO DE ERRORES
+  private handleDBErrors(error: any): never {
+    if(error.code === "ER_DUP_ENTRY"){
+      throw new BadRequestException (error.sqlMessage);
+    }
+    
+    if(error.status == 404) throw new NotFoundException(error.response);
+  
+    throw new InternalServerErrorException (error.message);
+    }
+    //FIN MANEJO DE ERRORES........................................
 }

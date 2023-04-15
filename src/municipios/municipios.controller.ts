@@ -30,7 +30,7 @@ export class MunicipiosController {
   }
   //FIN PARA RUTA NO DEFINIDA...........
 
-  @Put(':id')
+  @Patch(':id')
   update(
     @Param('id', ParseIntPipe) id: string, 
     @Body() dataDto: UpdateMunicipioDto

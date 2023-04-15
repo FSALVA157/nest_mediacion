@@ -138,14 +138,16 @@ export class UsuarioService {
     return await this.usuariosRepository.remove(respuesta);
   }
 
-  //MANEJO DE ERRORES
+  ///MANEJO DE ERRORES
   private handleDBErrors(error: any): never {
     if(error.code === "ER_DUP_ENTRY"){
       throw new BadRequestException (error.sqlMessage);
     }
-    console.log("error: ", error);
+    
+    if(error.status == 404) throw new NotFoundException(error.response);
+  
     throw new InternalServerErrorException (error.message);
-  }
-  //FIN MANEJO DE ERRORES........................................
+    }
+    //FIN MANEJO DE ERRORES........................................
 
 }

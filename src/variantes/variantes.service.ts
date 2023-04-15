@@ -14,17 +14,13 @@ export class VariantesService {
 
   async create(data: CreateVarianteDto): Promise<Variante> {
 
-    const nuevo = await this.varianteRepository.create(data);
     try {
-
+      
+      const nuevo = await this.varianteRepository.create(data);
       return await this.varianteRepository.save(nuevo);
     }catch (error) {
-      if(error.code == 'ER_DUP_ENTRY'){
-        let existe = await this.varianteRepository.findOneBy({variante: data.variante});
-        if(existe) throw new InternalServerErrorException ("La variante que intenta crear ya existe.");      
-      } 
 
-      throw new InternalServerErrorException('Error al crear la variante: ',error.message);  
+      this.handleDBErrors(error);  
     }
   }
 
@@ -42,7 +38,7 @@ export class VariantesService {
   async findOne(id: number) {
 
     const respuesta = await this.varianteRepository.findOneBy({id_variante: id});
-    if (!respuesta) throw new NotFoundException("No se encontró el registro de variante solicitado.");
+    if (!respuesta) throw new NotFoundException("El elemento solicitado no existe");
     return respuesta;
   }
   //FIN BUSCAR  XID..................................................................
@@ -53,15 +49,12 @@ export class VariantesService {
       const respuesta = await this.varianteRepository.update(id, data);
       if((await respuesta).affected == 0){
         await this.findOne(id);
-        throw new InternalServerErrorException("No se modificó el registro.");
       } 
       return respuesta;
     }
     catch(error){
-      if(error.code=='ER_DUP_ENTRY'){
-        throw new InternalServerErrorException('La variante ingresada ya existe.');
-      }      
-      throw new InternalServerErrorException('Error al modificar la variante: ',error.message);
+      
+      this.handleDBErrors(error);
     } 
   }
 
@@ -70,4 +63,18 @@ export class VariantesService {
     if(!respuesta) throw new NotFoundException("No existe el registro de variante que intenta eliminar");
     return await this.varianteRepository.remove(respuesta);
   }
+
+
+
+  //MANEJO DE ERRORES
+  private handleDBErrors(error: any): never {
+    if(error.code === "ER_DUP_ENTRY"){
+      throw new BadRequestException (error.sqlMessage);
+    }
+    
+    if(error.status == 404) throw new NotFoundException(error.response);
+  
+    throw new InternalServerErrorException (error.message);
+    }
+    //FIN MANEJO DE ERRORES........................................
 }

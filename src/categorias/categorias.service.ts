@@ -12,19 +12,15 @@ export class CategoriasService {
     private readonly categoriaRepository: Repository<Categoria>
   ){}
 
-  async create(data: CreateCategoriaDto): Promise<Categoria> {
+  async create(data: CreateCategoriaDto): Promise<Categoria> {    
     
-    const nuevo = await this.categoriaRepository.create(data);
     try {
-
+      const nuevo = await this.categoriaRepository.create(data);
       return await this.categoriaRepository.save(nuevo);
-    }catch (error) {
-      if(error.code == 'ER_DUP_ENTRY'){
-        let existe = await this.categoriaRepository.findOneBy({categoria: data.categoria});
-        if(existe) throw new InternalServerErrorException ("La categoría que intenta crear ya existe.");      
-      } 
 
-      throw new InternalServerErrorException('Error al crear la categoria: ',error.message);  
+    }catch (error) {
+
+      this.handleDBErrors(error); 
     }      
   }
 
@@ -42,7 +38,7 @@ export class CategoriasService {
   async findOne(id: number) {
 
     const respuesta = await this.categoriaRepository.findOneBy({id_categoria: id});
-    if (!respuesta) throw new NotFoundException("El registro solicitado no existe.");
+    if (!respuesta) throw new NotFoundException("El elemento solicitado no existe.");
     return respuesta;
   }
   //FIN BUSCAR  XID..................................................................
@@ -52,15 +48,13 @@ export class CategoriasService {
       const respuesta = await this.categoriaRepository.update(id, data);
       if((await respuesta).affected == 0){
         await this.findOne(id);
-        throw new InternalServerErrorException("No se modificó el registro.");
       } 
+
       return respuesta;
     }
     catch(error){
-      if(error.code=='ER_DUP_ENTRY'){
-        throw new InternalServerErrorException('La categoría ingresada ya existe.');
-      }      
-      throw new InternalServerErrorException('Error al modificar la categoría: ',error.message);
+      this.handleDBErrors(error);
+      
     }    
   }
 
@@ -69,4 +63,16 @@ export class CategoriasService {
     if(!respuesta) throw new NotFoundException("No existe el registro de categoría que intenta eliminar");
     return await this.categoriaRepository.remove(respuesta);
   }
+
+  //MANEJO DE ERRORES
+  private handleDBErrors(error: any): never {
+  if(error.code === "ER_DUP_ENTRY"){
+    throw new BadRequestException (error.sqlMessage);
+  }
+  
+  if(error.status == 404) throw new NotFoundException(error.response);
+
+  throw new InternalServerErrorException (error.message);
+  }
+  //FIN MANEJO DE ERRORES........................................
 }

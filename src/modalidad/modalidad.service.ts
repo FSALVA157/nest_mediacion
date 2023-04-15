@@ -14,17 +14,13 @@ export class ModalidadService {
 
   async create(data: CreateModalidadDto): Promise<Modalidad> {
 
-    const nuevo = await this.modalidadRepository.create(data);
     try{
-      
+      const nuevo = await this.modalidadRepository.create(data);      
       return await this.modalidadRepository.save(nuevo);
-    }catch (error) {
-      if(error.code == "ER_DUP_ENTRY"){
-        let existe = await this.modalidadRepository.findOneBy({modalidad: data.modalidad});
-        if(existe) throw new InternalServerErrorException ("La modalidad que intenta crear ya existe.");        
-      }
 
-      throw new InternalServerErrorException ("Error al crear la modalidad: ", error.message);
+    }catch (error) {
+      
+      this.handleDBErrors(error); 
     }
   }
 
@@ -42,7 +38,7 @@ export class ModalidadService {
   async findOne(id: number) {
 
     const respuesta = await this.modalidadRepository.findOneBy({id_modalidad: id});
-    if (!respuesta) throw new NotFoundException("No se encontró el registro de modalidad solicitado.");
+    if (!respuesta) throw new NotFoundException("El elemento solicitado no existe");
     return respuesta;
   }
   //FIN BUSCAR  XID..................................................................
@@ -53,15 +49,12 @@ export class ModalidadService {
       const respuesta = await this.modalidadRepository.update(id, data);
       if((await respuesta).affected == 0){
         await this.findOne(id);
-        throw new InternalServerErrorException("No se modificó el registro.");
       } 
       return respuesta;
     }
     catch(error){
-      if(error.code=='ER_DUP_ENTRY'){
-        throw new InternalServerErrorException('La modalidad ingresada ya existe.');
-      }      
-      throw new InternalServerErrorException('Error al modificar la modalidad: ',error.message);
+      
+      this.handleDBErrors(error); 
     }    
   }
 
@@ -70,4 +63,16 @@ export class ModalidadService {
     if(!respuesta) throw new NotFoundException("No existe el registro de modalidad que intenta eliminar");
     return await this.modalidadRepository.remove(respuesta);
   }
+
+  //MANEJO DE ERRORES
+  private handleDBErrors(error: any): never {
+    if(error.code === "ER_DUP_ENTRY"){
+      throw new BadRequestException (error.sqlMessage);
+    }
+    
+    if(error.status == 404) throw new NotFoundException(error.response);
+  
+    throw new InternalServerErrorException (error.message);
+    }
+    //FIN MANEJO DE ERRORES........................................
 }

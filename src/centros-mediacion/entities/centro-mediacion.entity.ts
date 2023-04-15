@@ -80,4 +80,10 @@ export class CentroMediacion {
         nullable: false
     })
     email:string;
+
+    @Column({
+        type: "boolean",
+        default: true
+    })
+    activo: boolean;
 }

@@ -23,15 +23,12 @@ export class AuthService {
 
   //LOGIN CIUDADANO
   async loginCiudadano(loginCiudadanoDto: LoginCiudadanoDto){
-    console.log("user", loginCiudadanoDto.dni);
-    console.log("clave", loginCiudadanoDto.clave);
-    const { dni, clave } = loginCiudadanoDto;    
-
+    const { dni, clave } = loginCiudadanoDto;   
     const ciudadano = await this.ciudadanoRepository.createQueryBuilder('ciudadano')
     .where('ciudadano.dni = :dni', { dni: dni })
     .select(['ciudadano', 'ciudadano.clave'])
     .getOne();
-    console.log("ciduadano", ciudadano);
+    
     if(!ciudadano)
       throw new UnauthorizedException ("Los datos de login no son válidos (dni)");
 
@@ -46,10 +43,7 @@ export class AuthService {
 
   //LOGIN USUARIO
   async loginUsuario(loginUsuarioDto: LoginUsuarioDto){
-    console.log("user", loginUsuarioDto.dni);
-    console.log("clave", loginUsuarioDto.clave);
     const { dni, clave } = loginUsuarioDto;    
-
     const usuario = await this.usuarioRepository.createQueryBuilder('usuario')
     .where('usuario.dni = :dni', { dni: dni })
     .select(['usuario.dni', 'usuario.clave'])
@@ -60,10 +54,8 @@ export class AuthService {
 
     if( !bcrypt.compareSync(clave, usuario.clave) )
       throw new UnauthorizedException ("Los datos de login no son válidos (clave)");
-    
-    //return ciudadano;
+        
     return await this.usuarioRepository.findOneBy({dni: dni})
-    //return usuario;
     //TODO: RETORNAR jWT
   }
   //FIN LOGIN USUARIO.................................................................

@@ -10,7 +10,6 @@ import { UsuarioModule } from './usuario/usuario.module';
 import { ProvinciasModule } from './provincias/provincias.module';
 import { MunicipiosModule } from './municipios/municipios.module';
 import { CiudadanosModule } from './ciudadanos/ciudadanos.module';
-import { ConvocadosModule } from './convocados/convocados.module';
 import { SexoModule } from './sexo/sexo.module';
 import { CentrosMediacionModule } from './centros-mediacion/centros-mediacion.module';
 import { UsuariosCentrosModule } from './usuarios-centros/usuarios-centros.module';
@@ -57,7 +56,6 @@ import { UsuariosTramiteModule } from './usuarios-tramite/usuarios-tramite.modul
     CategoriasModule, 
     CentrosMediacionModule,
     CiudadanosModule, 
-    ConvocadosModule,
     DepartamentosModule, 
     MunicipiosModule,
     ObjetosModule,

@@ -17,7 +17,7 @@ export class CentrosMediacionController {
   findByDepartamento(
     @Query('id_departamento', ParseIntPipe) id_departamento: string
   ) {
-
+    
     return this.centrosMediacionService.findByDepartamento(+id_departamento);
   }
 

@@ -32,7 +32,7 @@ export class ModalidadController {
 
   @Patch(':id')
   update(
-    @Param('id') id: string, 
+    @Param('id', ParseIntPipe) id: string, 
     @Body() dataDto: UpdateModalidadDto) {
     
     return this.modalidadService.update(+id, dataDto);

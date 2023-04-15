@@ -26,8 +26,17 @@ export class CiudadanosService {
       return await this.ciudadanoRepository.save(nuevo);
 
     } catch (error) {      
-      this.handleDBErrors(error);
 
+      if(error.code=='ER_DUP_ENTRY'){
+        let existe = await this.ciudadanoRepository.findOneBy({email: data.email});
+        if(existe) throw new BadRequestException ("El email ya existe.");
+      
+        existe = null;
+        existe = await this.ciudadanoRepository.findOneBy({dni: data.dni});
+        if(existe) throw new BadRequestException ("El dni ya existe.");
+      }   
+
+      throw new InternalServerErrorException('Error al crear el ciudadano: ' + error.message);
     }
   }
   //FIN CREAR CIUDADANO......................................................
@@ -49,18 +58,19 @@ export class CiudadanosService {
   async findXDni(dnix: number) {
     
     const respuesta = await this.ciudadanoRepository.findOneBy({dni: dnix});
-    if (!respuesta) throw new NotFoundException("El registro solicitado no existe.");
+    if (!respuesta) throw new NotFoundException("El elemento solicitado no existe.");
     return respuesta;
   }
   //FIN BUSCAR  XDni..................................................................
 
   //BUSCAR  XID
-  // async findOne(id: number) {
+  async findOne(id: number) {
 
-  //   const respuesta = await this.ciudadanoRepository.findOneBy({id: id});
-  //   if (!respuesta) throw new NotFoundException("No se encontró el registro de departamento solicitado.");
-  //   return respuesta;
-  // }
+    const respuesta = await this.ciudadanoRepository.findOneBy({id_ciudadano: id});
+    if (!respuesta) throw new NotFoundException("El elemento solicitado no existe.", "verificque el id del ciudadano");
+
+    return respuesta;
+  }
   //FIN BUSCAR  XID..................................................................
 
   //MODIFICAR CIUDADANO
@@ -68,16 +78,26 @@ export class CiudadanosService {
 
     try{
       const respuesta = await this.ciudadanoRepository.update(idx, data);
-      // if(( await respuesta).affected == 0){
-      //   await this.findXDni(dnix);
-      //   throw new InternalServerErrorException("No se modificó el registro.");
-      // } 
+      if(( await respuesta).affected == 0){
+        await this.findOne(idx);
+      } 
       
       return respuesta;
-
     }
     catch(error){
-      this.handleDBErrors(error);
+      
+      if(error.code=='ER_DUP_ENTRY'){
+        let existe = await this.ciudadanoRepository.findOneBy({dni: data.dni});
+        if(existe) throw new BadRequestException ("El dni ya existe.");       
+      
+        existe = null;
+        existe = await this.ciudadanoRepository.findOneBy({email: data.email});
+        if(existe) throw new BadRequestException ("El email ya existe.");
+      }   
+
+      if(error.status == 404) throw new NotFoundException(error.message);
+      
+      throw new InternalServerErrorException('Error al modificar: ' + error.message);
 
     }
   }
@@ -89,13 +109,11 @@ export class CiudadanosService {
     data.clave = clavex;
     try{
       const respuesta = await this.ciudadanoRepository.update(idx, data);
-      // if(( await respuesta).affected == 0){
-      //   await this.findXDni(dnix);
-      //   throw new InternalServerErrorException("No se modificó el registro.");
-      // } 
+      if(( await respuesta).affected == 0){
+        await this.findOne(idx);        
+      } 
       
       return respuesta;
-
     }
     catch(error){
       this.handleDBErrors(error);
@@ -118,7 +136,9 @@ export class CiudadanosService {
     if(error.code === "ER_DUP_ENTRY"){
       throw new BadRequestException (error.sqlMessage);
     }
-    console.log("error: ", error);
+    
+    if(error.status == 404) throw new NotFoundException(error.response);
+
     throw new InternalServerErrorException (error.message);
   }
   //FIN MANEJO DE ERRORES........................................

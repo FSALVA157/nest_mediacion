@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, NotFoundException, Put, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, NotFoundException, ParseIntPipe } from '@nestjs/common';
 import { Request } from 'express'
 import { ObjetosService } from './objetos.service';
 import { CreateObjetoDto } from './dto/create-objeto.dto';
@@ -31,7 +31,7 @@ export class ObjetosController {
   }
   //FIN PARA RUTA NO DEFINIDA...........
 
-  @Put(':id')
+  @Patch(':id')
   update(
     @Param('id', ParseIntPipe) id: string, 
     @Body() dataDto: UpdateObjetoDto

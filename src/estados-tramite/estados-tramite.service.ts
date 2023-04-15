@@ -18,12 +18,7 @@ export class EstadosTramiteService {
     try {
       return await this.estadoTramiteRepository.save(nuevo);
     } catch (error) {
-      if(error.code=='ER_DUP_ENTRY'){
-        let existe = await this.estadoTramiteRepository.findOneBy({estado_tramite: data.estado_tramite});
-        if(existe) throw new InternalServerErrorException ("El estado-tramite que intenta crear ya existe.");      
-      } 
-
-      throw new InternalServerErrorException('Error al crear el estado-tramite: ',error.message);  
+      this.handleDBErrors(error);
     }
     
   }
@@ -42,7 +37,7 @@ export class EstadosTramiteService {
   async findOne(id: number) {
 
     const respuesta = await this.estadoTramiteRepository.findOneBy({id_estado_tramite: id});
-    if (!respuesta) throw new NotFoundException("El registro solicitado no existe.");
+    if (!respuesta) throw new NotFoundException("El elemento solicitado no existe.");
     return respuesta;
   }
   //FIN BUSCAR  XID..................................................................
@@ -53,15 +48,11 @@ export class EstadosTramiteService {
       const respuesta = await this.estadoTramiteRepository.update(id, data);
       if((await respuesta).affected == 0){
         await this.findOne(id);
-        throw new InternalServerErrorException("No se modificó el registro.");
       } 
       return respuesta;
     }
     catch(error){
-      if(error.code=='ER_DUP_ENTRY'){
-        throw new InternalServerErrorException('El estado-tramite ingresado ya existe.');
-      }      
-      throw new InternalServerErrorException('Error al modificar el estado-tramite: ',error.message);
+      this.handleDBErrors(error);
     }    
   }
 
@@ -70,4 +61,17 @@ export class EstadosTramiteService {
     if(!respuesta) throw new NotFoundException("No existe el registro de estado de tramite que intenta eliminar");
     return await this.estadoTramiteRepository.remove(respuesta);
   }
+
+
+  //MANEJO DE ERRORES
+  private handleDBErrors(error: any): never {
+    if(error.code === "ER_DUP_ENTRY"){
+      throw new BadRequestException (error.sqlMessage);
+    }
+    
+    if(error.status == 404) throw new NotFoundException(error.response);
+
+    throw new InternalServerErrorException (error.message);
+  }
+  //FIN MANEJO DE ERRORES........................................
 }
