@@ -4,28 +4,28 @@ import { IsDateString, IsEmpty, IsInt, IsNotEmpty, Length } from "class-validato
 
 export class CreateUsuariosTramiteDto {
 
-    @IsInt({message: "El tramite-numero debe ser un número entero."})
-    @IsNotEmpty({message: "Debe ingresar el número-tramite."})
+    @IsInt({message: "El tramite_numero debe ser un número entero."})
+    @IsNotEmpty({message: "Debe ingresar el tramite_numeroxxx."})
     tramite_numero: number;
 
-    @IsInt({message: "El usuario-id debe ser un número entero."})
-    @IsNotEmpty({message: "Debe ingresar el id-usuario."})
+    @IsInt({message: "El usuario_id debe ser un número entero."})
+    @IsNotEmpty({message: "Debe ingresar el usuario_id."})
     usuario_id: number
    
-    @Length(1,200,{message: "El detalle debe tener entre $constraint1 y $constraint2 caracteres."})
-    @IsNotEmpty({message: "Debe ingresar el detalle."})
+    @Length(1,200,{message: "detalles debe tener entre $constraint1 y $constraint2 caracteres."})
+    @IsNotEmpty({message: "Debe ingresar detalles."})
     detalles: string;
     
-    @IsEmpty({message: "No debe enviar el campo fecha asignacion."})
+    @IsEmpty({message: "No debe enviar el campo fecha_asignacion."})
     fecha_asignacion: Date;
 
-    @IsEmpty({message: "No debe enviar el campo fecha sece."})
+    @IsEmpty({message: "No debe enviar el campo fecha_sece."})
     fecha_sece: Date;
     
-    @IsInt({message: "El tramite-funcion-id debe ser un número entero."})
-    @IsNotEmpty({message: "Debe ingresar el tramite-funcion-id."})
-    funcion_tramite_id
+    @IsInt({message: "El funcion_tramite_id debe ser un número entero."})
+    @IsNotEmpty({message: "Debe ingresar el funcion_tramite_id."})
+    funcion_tramite_id: number;
 
-    @IsEmpty({message: "No debe enviar el campo activo."})
-    activo: boolean;
+    // @IsEmpty({message: "No debe enviar el campo activo."})
+    // activo: boolean;
 }

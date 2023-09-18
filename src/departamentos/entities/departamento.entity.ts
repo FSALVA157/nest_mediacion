@@ -31,6 +31,13 @@ export class Departamento {
     provincia : Provincia;
     //FIN PROINCIA............................
 
+    @Column({
+        type: "boolean",
+        nullable: false,
+        default: false,
+    })
+    tiene_centro_mediacion: boolean;
+
     //MUNICIPIOS
     @OneToMany(() => Municipio, (municipio) => municipio.departamento)
     municipios : Municipio[];

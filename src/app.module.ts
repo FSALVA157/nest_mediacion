@@ -13,7 +13,6 @@ import { CiudadanosModule } from './ciudadanos/ciudadanos.module';
 import { SexoModule } from './sexo/sexo.module';
 import { CentrosMediacionModule } from './centros-mediacion/centros-mediacion.module';
 import { UsuariosCentrosModule } from './usuarios-centros/usuarios-centros.module';
-import { VinculdadosModule } from './vinculdados/vinculdados.module';
 import { CategoriasModule } from './categorias/categorias.module';
 import { ObjetosModule } from './objetos/objetos.module';
 import { ModalidadModule } from './modalidad/modalidad.module';
@@ -24,6 +23,9 @@ import { EstadosTramiteModule } from './estados-tramite/estados-tramite.module';
 import { FuncionTramiteModule } from './funcion-tramite/funcion-tramite.module';
 import { AuthModule } from './auth/auth.module';
 import { UsuariosTramiteModule } from './usuarios-tramite/usuarios-tramite.module';
+import { ConvocadosModule } from './convocados/convocados.module';
+import { VinculadosModule } from './vinculados/vinculados.module';
+import { AudienciasModule } from './audiencias/audiencias.module';
 
 @Module({
   imports: [
@@ -63,7 +65,6 @@ import { UsuariosTramiteModule } from './usuarios-tramite/usuarios-tramite.modul
     SexoModule,
     UsuarioModule,
     UsuariosCentrosModule,
-    VinculdadosModule,
     ModalidadModule,
     TiposAudienciaModule,
     VariantesModule,
@@ -72,6 +73,9 @@ import { UsuariosTramiteModule } from './usuarios-tramite/usuarios-tramite.modul
     FuncionTramiteModule,
     AuthModule,
     UsuariosTramiteModule,
+    ConvocadosModule,
+    VinculadosModule,
+    AudienciasModule,
     
     
          

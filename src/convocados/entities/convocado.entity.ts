@@ -1,15 +1,16 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { Sexo } from '../../sexo/entities/sexo.entity';
-import { Provincia } from '../../provincias/entities/provincia.entity';
-import { Departamento } from '../../departamentos/entities/departamento.entity';
-import { Municipio } from '../../municipios/entities/municipio.entity';
-import { Categoria } from '../../categorias/entities/categoria.entity';
-import { Tramite } from "src/tramites/entities/tramite.entity";
 
-@Entity('vinculados')
-export class Vinculdado {
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+
+import { Tramite } from "src/tramites/entities/tramite.entity";
+import { Sexo } from "src/sexo/entities/sexo.entity";
+import { Provincia } from "src/provincias/entities/provincia.entity";
+import { Departamento } from "src/departamentos/entities/departamento.entity";
+import { Municipio } from "src/municipios/entities/municipio.entity";
+
+@Entity('convocados')
+export class Convocado {
     @PrimaryGeneratedColumn()
-    id_vinculado: number;
+    id_convocado: number;
 
     //TRAMITE
     @Column({
@@ -39,7 +40,6 @@ export class Vinculdado {
         nullable: false
     })
     nombre: string;
-
      
     @Column({
         type: 'int',
@@ -67,7 +67,7 @@ export class Vinculdado {
     @Column({
         type: 'int',
         nullable: false,
-        default: 1
+        default: 18
     })
     provincia_id: number;
 
@@ -156,25 +156,9 @@ export class Vinculdado {
     @Column({
         type: 'varchar',
         length: 200,
-        nullable: true,
-        unique: true
+        nullable: true
     })
     email:string;
-
-    //CATEGORIA
-    @Column({
-        type: 'int',
-        nullable: false
-    })
-    categoria_id: number;
-
-    @ManyToOne(type => Categoria, {eager:true})
-    @JoinColumn({
-        name: 'categoria_id',
-        referencedColumnName: 'id_categoria'
-    })
-    categoria: Categoria;
-    //FIN CATEGORIA
 
     @Column({
         type: "boolean",

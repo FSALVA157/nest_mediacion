@@ -19,7 +19,6 @@ export class UsuariosTramiteController {
     let fecha_actual: any = new Date().toISOString().split('T')[0];
     data.fecha_asignacion= fecha_actual;
     data.fecha_sece = null;
-    data.activo=true;
 
     const usuarioTramite = this.usuariosTramiteService.create(data);
     //ESTABLECER con mediador
@@ -34,7 +33,6 @@ export class UsuariosTramiteController {
   async findTramiteXUsuario(
     @Query('id_usuario', ParseIntPipe) id_usuario: string, 
   ) {
-
     let id_usuariox: number = +id_usuario;
 
     if (id_usuariox === 0) return this.usuariosTramiteService.findTramitesActivos();
@@ -43,24 +41,33 @@ export class UsuariosTramiteController {
   }
   //FIN BUSCAR TRAMITES ASIGNADOS POR ID-USUARIO....................................................
 
-  //BUSCAR TRAMITES ASIGNADOS POR ID-USUARIO
+  //BUSCAR TRAMITES x numero de tramite
   @Get('buscar-xnumtramite-activo')  
   async findTramiteXNumero(
     @Query('numero_tramite', ParseIntPipe) numero_tramite: string, 
   ) {
-
     let numero_tramitex: number = +numero_tramite;
 
     return this.usuariosTramiteService.findByNumTramiteActivo(numero_tramitex);
   }
-  //FIN BUSCAR TRAMITES ASIGNADOS POR ID-USUARIO....................................................
+  //FIN BUSCAR TRAMITES x numero de tramite....................................................
+
+  //BUSCAR mediador del tramite x numero de tramite
+  @Get('buscar-mediador-xnumtramite-activo')  
+  async findMediadorTramiteXNumeroTram(
+    @Query('numero_tramite', ParseIntPipe) numero_tramite: string, 
+  ) {
+    let numero_tramitex: number = +numero_tramite;
+
+    return this.usuariosTramiteService.findMediadorByNumTramiteActivo(numero_tramitex);
+  }
+  //FIN BUSCAR TRAMITES x numero de tramite....................................................
 
   //BUSCAR TRAMITES ASIGNADOS POR CIUDADANO
   @Get('buscar-xciudadano')  
   async findTramiteXCiudadano(
     @Query('id_ciudadano', ParseIntPipe) id_ciudadano: string, 
-  ) {
-    
+  ) {    
     let id_ciudadanox: number = +id_ciudadano;
 
     if (id_ciudadanox === 0) return this.usuariosTramiteService.findTramitesActivos();
@@ -89,6 +96,17 @@ export class UsuariosTramiteController {
     
     return this.usuariosTramiteService.findOne(+id);
   }
+
+  //DESHABILITAR USUARIO
+  @Patch('deshabilitar-usuario')
+  async deshabilitarUsuario(    
+    @Query('id_usuario_tramite', ParseIntPipe) id_usuario_tramite: string,
+    @Body() dataDtox: UpdateUsuariosTramiteDto
+  ) {
+    
+    return this.usuariosTramiteService.deshabilitarUsuario(+id_usuario_tramite);    
+  }
+  //FIN //DESHABILITAR USUARIO........................................................
 
   @Patch(':id')
   update(

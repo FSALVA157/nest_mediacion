@@ -84,7 +84,7 @@ export class UsuariosCentrosService {
   }
   //FIN BUSCAR  XID CENTRO DE MEDIACION..................................................................
 
-  //BUSCAR  XID CENTRO DE MEDIACION
+  //BUSCAR USUARIOS XID CENTRO DE MEDIACION Y ACTIVOS
   async findXCentroMediacionXActivo(id_centro: number, activox: boolean) {    
     //const respuesta = await this.usuariosCentroRepository.findOneBy({id_usuario_centro: id});
     const respuesta = await this.usuariosCentroRepository.findAndCount(
@@ -99,7 +99,24 @@ export class UsuariosCentrosService {
     );
     return respuesta;
   }
-  //FIN BUSCAR  XID CENTRO DE MEDIACION..................................................................
+  //FIN BUSCAR  USUARIOS XID CENTRO DE MEDIACION Y ACTIVOS..................................................................
+
+  //BUSCAR CENTROS DE MEDIACION XUSUARIO Y ACTIVO ()
+  async findByUsuarioByActivo(id_usuario: number, activox: boolean) {    
+    //const respuesta = await this.usuariosCentroRepository.findOneBy({id_usuario_centro: id});
+    const respuesta = await this.usuariosCentroRepository.findAndCount(
+      {
+        //relations: ['usuario','centro_mediacion'],
+        where: {
+          usuario_id: id_usuario,
+          activo: activox
+        }      
+          
+      }
+    );
+    return respuesta;
+  }
+  //FIN BUSCAR CENTROS DE MEDIACION XUSUARIO Y ACTIVO..................................................................
 
   //MODIFICAR UNO
   async update(id: number, data: UpdateUsuarioCentroDto) {

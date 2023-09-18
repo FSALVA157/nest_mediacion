@@ -83,6 +83,12 @@ export class CentroMediacion {
 
     @Column({
         type: "boolean",
+        default: false
+    })
+    admin_es_responsable: boolean;
+
+    @Column({
+        type: "boolean",
         default: true
     })
     activo: boolean;

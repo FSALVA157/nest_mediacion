@@ -6,7 +6,7 @@ export class CreateMunicipioDto {
     @IsNotEmpty({message: "Debe ingresar el municipio."})    
     municipio: string;
     
-    @IsInt({message: "El id-departamento debe ser un número entero."})
+    @IsInt({message: "El departamento_id debe ser un número entero."})
     departamento_id: number;
 
 }

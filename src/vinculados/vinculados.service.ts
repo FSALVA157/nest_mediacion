@@ -1,32 +1,26 @@
 import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CreateVinculdadoDto } from './dto/create-vinculdado.dto';
-import { UpdateVinculdadoDto } from './dto/update-vinculdado.dto';
-import { Vinculdado } from './entities/vinculdado.entity';
-import { Tramite } from '../tramites/entities/tramite.entity';
+
+import { CreateVinculadoDto } from './dto/create-vinculado.dto';
+import { UpdateVinculadoDto } from './dto/update-vinculado.dto';
+import { Vinculado } from './entities/vinculado.entity';
+//import { UpdateVinculdadoDto } from 'src/vinculdados/dto/update-vinculdado.dto';
 
 @Injectable()
-export class VinculdadosService {
+export class VinculadosService {
+    
   constructor(
-    @InjectRepository(Vinculdado)
-    private readonly vinculadosRepository: Repository<Vinculdado>,
-    @InjectRepository(Tramite)
-    private readonly tramitesRepository: Repository<Tramite>
+    @InjectRepository(Vinculado)
+    private readonly vinculadosRepository: Repository<Vinculado>  
   ){}
 
   //NUEVO VINCULADO
-  async create(data: Partial<Vinculdado>): Promise<Vinculdado> {
+  async createVinculados(data: CreateVinculadoDto[]): Promise<Vinculado[]> {
     try {
       const nuevo = this.vinculadosRepository.create(data);
       return await this.vinculadosRepository.save(nuevo);
     }catch (error) {
-      if(error.code === "ER_NO_REFERENCED_ROW_2"){
-        //Control de existencia del tramite
-        const tramite_existe = await this.tramitesRepository.findOneBy({ numero_tramite: data.tramite_numero});
-        if(!tramite_existe) throw new BadRequestException ("El numero de tramite ingresado no existe.")
-        //FIN Control de existencia del tramite        
-      }
 
       this.handleDBErrors(error); 
     }      
@@ -75,7 +69,7 @@ export class VinculdadosService {
   }
   //FIN BUSCAR  XID..................................................................
 
-  async update(id: number, data: UpdateVinculdadoDto) {
+  async update(id: number, data: UpdateVinculadoDto) {
     try{
       const respuesta = await this.vinculadosRepository.update({id_vinculado: id}, data);
       if((respuesta).affected == 0){
@@ -94,8 +88,13 @@ export class VinculdadosService {
     return await this.vinculadosRepository.remove(respuesta);
   }
 
+  async removeByTramite(numTramite: number) {
+    
+    return await this.vinculadosRepository.delete({tramite_numero: numTramite})
+  }
 
-  //MANEJO DE ERRORES
+
+  //MANEJO DE ERRORES 
   private handleDBErrors(error: any): never {
     if(error.code === "ER_DUP_ENTRY"){
       throw new BadRequestException (error.sqlMessage);
@@ -103,6 +102,10 @@ export class VinculdadosService {
 
     if(error.code === "ER_NO_REFERENCED_ROW_2"){
       throw new BadRequestException (error.sqlMessage);
+    } 
+
+    if(error.code === "ER_NO_DEFAULT_FOR_FIELD"){
+      throw new BadRequestException ("Debe ingresar el tramite_numero");
     } 
 
     if(error.status == 404) throw new NotFoundException(error.response);

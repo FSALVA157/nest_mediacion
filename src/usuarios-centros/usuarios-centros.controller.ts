@@ -31,7 +31,8 @@ export class UsuariosCentrosController {
     return this.usuariosCentrosService.findXCentroMediacion(+id_centro);
   }
   //FIN BUSCAR  XI DEL CENTRO DE MEDIACION....................................................
-
+  
+  //BUSCAR USUARIOS XID CENTRO DE MEDIACION Y ACTIVOS
   @Get('buscar-activos-xcentro-mediacion')  
   async findActivosXCentroMediacion(
     @Query('id_centro', ParseIntPipe) id_centro: string
@@ -39,7 +40,17 @@ export class UsuariosCentrosController {
     
     return this.usuariosCentrosService.findXCentroMediacionXActivo(+id_centro, true);
   }
-  //FIN BUSCAR  XI DEL CENTRO DE MEDIACION....................................................
+  //FIN BUSCAR USUARIOS XID CENTRO DE MEDIACION Y ACTIVOS....................................................
+
+  //BUSCAR CENTRO DE MEDIACION  XUSUARIO Y ACTIVOS
+  @Get('buscar-centros-activos-xusuario')  
+  async findCentrosActivosXUsuario(
+    @Query('id_usuario', ParseIntPipe) id_usuario: string
+  ) {    
+    
+    return this.usuariosCentrosService.findByUsuarioByActivo(+id_usuario, true);
+  }
+  //FIN BUSCAR CENTRO DE MEDIACION  XUSUARIO Y ACTIVOS....................................................
 
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: string) {
@@ -47,7 +58,7 @@ export class UsuariosCentrosController {
     return this.usuariosCentrosService.findOne(+id);
   }
 
-  //SALIDA MOVIMIENTO DEL TRAMITE
+  //DESHABILITAR USUARIO
   @Put('deshabilitar-usuario')
   async deshabilitarUsuario(    
     @Query('id_usuario_centro', ParseIntPipe) id_usuario_centro: string,
@@ -60,7 +71,7 @@ export class UsuariosCentrosController {
     return this.usuariosCentrosService.update(+id_usuario_centro,dataDto);
     
   }
-  //FIN SALIDA MOVIMIENTO DEL TRAMITE........................................................
+  //FIN //DESHABILITAR USUARIO........................................................
 
   @Put(':id')
   update(

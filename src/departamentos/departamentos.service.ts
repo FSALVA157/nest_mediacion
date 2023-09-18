@@ -24,6 +24,24 @@ export class DepartamentosService {
     
   }
 
+  //BUSCAR  XDEPARTAMENTOS CON CENTRO MEDIACION
+  async findConCentroMediacion() {
+
+    const respuesta = await this.departamentoRepository.find(
+      {
+        
+        where: {
+          tiene_centro_mediacion: true
+        }
+      }
+    );
+    if (!respuesta) throw new NotFoundException("No se encontró el registro de tramite solicitado.");
+    return respuesta;
+    
+    
+  }
+  //FIN BUSCAR XDEPARTAMENTOS CON CENTRO MEDIACION..................................................................
+
   async findAll() {
     return await this.departamentoRepository.findAndCount(
       {

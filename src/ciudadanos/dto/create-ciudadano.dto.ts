@@ -11,7 +11,7 @@ export class CreateCiudadanoDto {
     @Length(1,100,{message: "El nombre debe tener entre $constraint1 y $constraint2 caracteres."})
     nombre: string;
 
-    @IsInt({message: "El id-sexo debe ser un número entero"})
+    @IsInt({message: "El sexo_id debe ser un número entero"})
     sexo_id: number;    
     
     @Length(1,100,{message: "El teléfono debe tener entre $constraint1 y $constraint2 caracteres."})
@@ -21,8 +21,8 @@ export class CreateCiudadanoDto {
     fecha_nac: Date;
 
     @Matches(/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}$/,{message:'El formato del email no es válido'})
-    @Length(1,200,{message: "El correo debe tener entre $constraint1 y $constraint2 caracteres."})
-    @IsNotEmpty({message: "Debe ingresar el correo."})
+    @Length(1,200,{message: "El email debe tener entre $constraint1 y $constraint2 caracteres."})
+    @IsNotEmpty({message: "Debe ingresar el email."})
     email:string;
 
     @IsString()

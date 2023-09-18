@@ -82,12 +82,12 @@ export class UsuarioService {
   //FIN BUSCAR  XDni..................................................................
 
   //BUSCAR  XID
-  // async findOne(id: number) {
+  async findOne(id: number) {
+    const respuesta = await this.usuariosRepository.findOneBy({id_usuario: id});
+    if (!respuesta) throw new NotFoundException("No se encontró el registro de usuario solicitado.");
 
-  //   const respuesta = await this.ciudadanoRepository.findOneBy({id_departamento: id});
-  //   if (!respuesta) throw new NotFoundException("No se encontró el registro de departamento solicitado.");
-  //   return respuesta;
-  // }
+    return respuesta;
+  }
   //FIN BUSCAR  XID..................................................................
 
   

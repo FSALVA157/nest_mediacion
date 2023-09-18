@@ -13,41 +13,80 @@ export class UsuariosTramiteService {
     private readonly usuariosTramiteRepository: Repository<UsuariosTramite>
   ){}
 
+  //NUEVO
   async create(data: CreateUsuariosTramiteDto): Promise<UsuariosTramite> {
+    //comprobar existencia de este usuario asignado
     const existe = await this.usuariosTramiteRepository.findOne(
       {
         where:{
-          //usuario_id: data.usuario_id,
           tramite_numero: data.tramite_numero,
-          funcion_tramite_id: data.funcion_tramite_id,
+          usuario_id: data.usuario_id,
           activo: true
         }
       }
     );
-    if(existe) throw new BadRequestException ("Este tramite tiene un usuario asignado con esta funcion.");
+    if(existe) throw new BadRequestException ("Este usuario ya está asignado a este tramite.");
     
+    //actualizar a activo=falso a los registros con funcion mediador  cuando se asigna un mediador (solo puede haber 1)
+    if( data.funcion_tramite_id === 2 ){
+      try{
+        const respuesta = await this.usuariosTramiteRepository.createQueryBuilder('usuario_tramite')
+        .update('usuario_tramite')
+        .set({activo: false})
+        .where('tramite_numero = :tramite_numero',{tramite_numero: data.tramite_numero})
+        .andWhere('funcion_tramite_id = :funcion_tramite_id', {funcion_tramite_id: 2})
+        .execute();
+      }
+      catch (error){
+        this.handleDBErrors(error);
+      }
+    }
+    
+    //crear el nuevo usuario para el tramite
     try {
-      const nuevo = await this.usuariosTramiteRepository.create(data);
+      const nuevo = this.usuariosTramiteRepository.create(data);
       return await this.usuariosTramiteRepository.save(nuevo);
     } catch (error) {
           
       this.handleDBErrors(error);
     }       
-  }
+  }  
+  //FIN NUEVO......................................................
 
-  
+  //DESHABILITAR USUARIO
+  async deshabilitarUsuario(id_usuario_tramitex: number) {
+    const usuarioTramite = await this.findOne(id_usuario_tramitex);
+    if( usuarioTramite.funcion_tramite_id == 2 ){
+        throw new BadRequestException("No puede deshabilitar un usuario con función de mediador")
+    }
+    try{
+      const respuesta = await this.usuariosTramiteRepository.createQueryBuilder('usuario_tramite')
+      .update('usuario_tramite')
+      .set({activo: false})
+      .where('id_usuario_tramite = :id_usuario_tramite',{id_usuario_tramite: id_usuario_tramitex})
+      .execute();
+      
+      if((respuesta).affected == 0) {
+        await this.findOne(id_usuario_tramitex);
+      }
+
+      return respuesta;
+    }
+    catch(error){
+      this.handleDBErrors(error);
+    }
+  }
+  //FIN DESHABILITAR USUARIO................
 
   //BUSCAR  XID
   async findTramitesXUsuario(id_usuario: number) {    
     //const respuesta = await this.usuariosCentroRepository.findOneBy({id_usuario_centro: id});
     const respuesta = await this.usuariosTramiteRepository.findAndCount(
       {
-        //relations: ['tramite'],
         where: {          
           usuario_id: id_usuario,
           activo: true
-        }      
-          
+        }   
       }
     );
     
@@ -57,8 +96,7 @@ export class UsuariosTramiteService {
   //FIN BUSCAR  XID..................................................................
 
   //BUSCAR TRAMITES X CIUDADANO
-  async findTramitesXCiudadano(id_ciudadano){
-
+  async findTramitesXCiudadano(id_ciudadano:number){
     const tramites = await this.usuariosTramiteRepository.createQueryBuilder('usuario_tramite')
     .leftJoinAndSelect('usuario_tramite.tramite', 'tramite')    
     .leftJoinAndSelect('tramite.ciudadano', 'ciudadano')  
@@ -82,8 +120,7 @@ export class UsuariosTramiteService {
         //relations: ['usuario','centro_mediacion'],
         where: {
           activo: true,
-        }      
-          
+        }                
       }
     );
     if (!respuesta) throw new NotFoundException("No se encontró el tramites para este usuario.");
@@ -91,10 +128,10 @@ export class UsuariosTramiteService {
   }
   //FIN BUSCAR  TRAMITES ASIGNADOS ACTIVOS..................................................................
 
-  //BUSCAR  XID
+  //BUSCAR  XNUMTRAMITE
   async findByNumTramiteActivo(num_tramite: number) {    
     //const respuesta = await this.usuariosCentroRepository.findOneBy({id_usuario_centro: id});
-    const respuesta = await this.usuariosTramiteRepository.findOne(
+    const respuesta = await this.usuariosTramiteRepository.findAndCount(
       {
         //relations: ['tramite'],
         where: {          
@@ -108,7 +145,26 @@ export class UsuariosTramiteService {
     if (!respuesta) throw new NotFoundException("No se encontró el registro con este numero de tramite.");
     return respuesta;
   }
-  //FIN BUSCAR  XID..................................................................
+  //FIN BUSCAR  XNUMTRAMITE..................................................................
+
+  //BUSCAR MEDIADOR  XNUMTRAMITE
+  async findMediadorByNumTramiteActivo(num_tramite: number) {    
+    const respuesta = await this.usuariosTramiteRepository.findOne(
+      {
+        //relations: ['tramite'],
+        where: {          
+          tramite_numero: num_tramite,
+          funcion_tramite_id: 2,
+          activo: true
+        }      
+          
+      }
+    );
+    
+    if (!respuesta) throw new NotFoundException("No se encontró el registro con este numero de tramite.");
+    return respuesta;
+  }
+  //FIN BUSCAR MEDIADOR XNUMTRAMITE..................................................................
   
   async findAll() {
     return await this.usuariosTramiteRepository.findAndCount(
@@ -140,8 +196,9 @@ export class UsuariosTramiteService {
     if (!respuesta) throw new NotFoundException("El elemento solicitado no existe");
     return respuesta;
   }
-  //FIN BUSCAR  XID..................................................................
+  //FIN BUSCAR  XID..................................................................  
 
+  //MODIFICAR
   async update(id: number, data: UpdateUsuariosTramiteDto) {
     try{
       const respuesta = await this.usuariosTramiteRepository.update({id_usuario_tramite: id}, data);
@@ -155,6 +212,7 @@ export class UsuariosTramiteService {
       this.handleDBErrors(error);
     }
   }
+  //FIN MODIFICAR................
 
   async remove(id: number) {
     const respuesta = await this.usuariosTramiteRepository.findOneBy({id_usuario_tramite: id});
